@@ -1,0 +1,152 @@
+\section{总体概述}
+
+\section{任务完成情况}
+
+\subsection{任务完成列表}
+
+\subsection{具体Exercise的完成情况}
+
+\textbf{Exercise 1 调研}
+
+调研Linux或Windows中进程控制块（PCB）的基本实现方式，理解与Nachos的异同。
+
+PCB结构在不同的操作系统中有着不同的名字，所包含的内容也不一样，与系统设计者对功能、性能、安全的方面的考虑密切相关，但是也会包含一些必要的内容。
+
+\textbf{Windows中的PCB}：在Windows中定义进程的结构是\texttt{EPROCESS}和\texttt{KPROCESS}这两个结构。其中\texttt{EPROCESS}表示进程，
+\texttt{KPROCESS}表示线程。
+按照微软的定义， Windows中的进程\texttt{EPROCEESS}简单地说就是一个内存中的可执行程序，提供程序运行的各种资源。进程拥有虚拟的地址空间，可执行代码，数据，对象句柄集，环境变量，基础优先级，以及最大最小工作集。
+
+Windows中的线程\texttt{KPROCESS}是操作系统处理机调度的基本单位。线程可以执行进程中的任意代码，包括正在被其他线程执行的代码。进程中的线程共享进程的虚拟地址空间和所申请的系统资源，每个线程拥有自己的例外处理过程，一个调度优先级以及线程上下文数据结构。线程上下文数据结构
+包含寄存器值，核心堆栈，用户堆栈和线程环境块。
+
+Windows中的进程链表是一个双向的循环链表。这个环链表\texttt{LIST\_ENTRY}结构把每个\texttt{EPROCESS}链接起来。只要找到任何一个\texttt{EPROCESS}
+结构，就可以将整个链表遍历一遍，这就是枚举进程的基本原理。
+
+\textbf{Linux中的PCB}：在Linux系统中定义进程的结构是\texttt{task\_struct}，在\texttt{include/linux/sched.h}文件中，主要包含了以下内容：
+
+1) 标识符：标记进程信息的数字标识，包括\texttt{pid}（进程标识符）、\texttt{uid}（用户标识符）和\texttt{pgrp}（进程组标识）等。
+
+2) 进程状态（state）：占有CPU执行、\texttt{TASK\_RUNNING}、\texttt{TASK\_STOPPED}、\texttt{TASK\_UNINTERRUPTBLE}、\texttt{TASK\_INTERRUPTBLE}和\texttt{TASK\_ZOMBIE}。
+
+3) 进程优先级：该进程的调度优先级，主要包括\texttt{static\_prio}、\texttt{normal\_prio}、\texttt{prio}和\texttt{rt\_priority}四种。其含义也颇为清楚，可以直接译为静态优先级、常态优先级、优先级和实时优先级。
+
+4) 进程调度策略（policy）：主要包括\texttt{SCHED\_NORMAL}（基于优先级的调度算法）、\texttt{SCHED\_FIFO}（先进先出的调度算法）、\texttt{SCHED\_RR}（时间片轮转调度算法）、\texttt{SCHED\_BATCH}（用于非交互的CPU消耗型进程的调度算法）和\texttt{SCHED\_IDLE}（用于系统负载低时的调度算法）五种。
+
+5) 进程队列双向链表指针：包括\texttt{next\_tack}和\texttt{prev\_task}。
+
+6) 进程关系指针：包括\texttt{real\_parent}（父进程）、\texttt{parent}（接收终止信号的父进程）、\texttt{children}（子进程链表）、\texttt{slibing}（兄弟进程链表）和\texttt{group\_leader}（所在进程组的领头进程）。
+
+7) 内存信息：包括程序代码和进程相关数据的地址，如\texttt{start\_code}（代码段地址）、\texttt{end\_code}（代码长度）等。还包括和其它进程共享的内存块指针。
+
+8) 上下文数据：进程执行时寄存器中保存的数据，主要保存在一个名为\texttt{tss}的结构中。
+
+9) I/O状态信息：包括显示的I/O请求，分配给进程的I/O设备和打开文件表，如\texttt{files}指针指向打开文件链表。
+
+10) 时间信息：进程运行的相关时间信息，如\texttt{utime}（用户态运行时间）、\texttt{stime}（系统态运行时间）和\texttt{start\_time}（进程开始运行时刻）等。
+
+Linux中的进程控制块中包含了较多时间、状态等信息，可以考虑的是这与其调度算法相关，这些信息可以用来为调度算法提供依据。而在Nachos与XV6中，PCB结构只包含了基本的信息，因为其调度算法也颇为简单。
+值得注意的是，在Linux中只有进程的概念，并没有像Windows一样原生支持线程。这一点在XV6与Nachos中也有同样的体现。一个解释是，在Linux中，进程是操作系统分配资源和调度的单位，而线程是
+用户空间的概念，一个进程中可以对应一个或多个用户空间的线程，实现精细化的调度和资源共享。
+
+\textbf{Nachos中的PCB}：Nachos中关于进程PCB结构定义在\texttt{threads/thread.h}文件夹
+中，数据结构名称为\texttt{Thread}，这里使用的是C++语言中的类（class）。
+这里虽然写的是Thread，但依然是进程的概念，具体原因可以查看上面的解释（因此在之后讨论Nachos的PCB结构时，不加区分进程与线程）。
+
+Nachos中线程状态有4个，定义在枚举类型\texttt{ThreadStatus}中，分别是\texttt{JUST\_CREATED}、\texttt{RUNNING}、\texttt{READY}、\texttt{BLOCKED}，分别表示刚创建、
+运行、就绪、阻塞。是一个非常简单的4状态模型，值得注意的是，其中没有常见的消亡态（或称终止状态）。
+在\texttt{Thread}中有两个静态成员，分别是int指针类型的\texttt{stackTop}和\texttt{machineState}数组。注释中写明了它们分别表示当前栈顶指针和所有除栈顶以外的寄存器信息。
+并且在类的开头用注释显式指明了不要改变这两个成员的位置，这样才能确保\texttt{SWITCH}正常工作。
+
+接着定义了一系列公有方法，分别是构造函数（可以指定一个调试参数）和析构函数、创建线程\texttt{Fork}、主动释放CPU \texttt{Yield}、主动睡眠\texttt{Sleep}、主动结束自身\texttt{Finish}、检查栈是否满\texttt{CheckOverFlow}、设置状态\texttt{setStatus}、\texttt{getName}、\texttt{Print}等。
+
+其中私有成员和方法分别包含了一个栈底指针\texttt{stack}，如果为空表示当前栈为空。并且有注释
+表明，如果在\texttt{main}进程中，该指针为空，所以如果当前\texttt{stack}指针为空，不要
+将其释放。进程状态\texttt{status}、进程名称\texttt{name}，\texttt{StackAllocate}用于给
+进程栈分配内存，该函数声明为私有，内部被\texttt{Fork}函数调用。
+
+在此之后定义了一个条件编译\texttt{USER\_PROGRAM}，一个运行用户程序的进程有两组CPU寄存器，一组用来记录当执行用户代码的时候的状态，一组用来记录当执行内核代码时的状态。\texttt{userRegisters}定义
+了用户级别的CPU寄存器状态。另外还有两个方法，分别是\texttt{SaveUserState}和\texttt{RestoreUserState}，用来保存和恢复用户的寄存器状态。\texttt{space}是一个\texttt{AddrSpace}指针类型变量，记录了正在运行的用户进程的代码。该结构定义在\texttt{userprog/addrspace.h}中。
+
+可以看出，Nachos中的进程控制块结构颇为简单，主要包含了进程状态、一个执行栈和一个寄存器状态数组，如果是用户进程，则还需要一个寄存器状态数组。
+其余为维护这些信息的函数。
+
+\textbf{Exercise 2 源代码阅读}
+
+仔细阅读下列源代码，理解Nachos现有的线程机制。
+\begin{itemize}
+    \item \texttt{code/threads/main.cc}和\texttt{code/threads/threadtest.cc}
+    \item \texttt{code/threads/thread.h}和 \texttt{code/threads/thread.cc}
+\end{itemize}
+
+首先阅读\texttt{thread.h}，这个文件中定义了\texttt{Thread}这个类的主要信息，其分析在上一部分
+解释得比较详细。其中还定义了一些宏：\texttt{MachineStateSize}为18，代表CPU寄存器的数量，
+这里取得是所有架构中的最大值。\texttt{StackSize}为进程私有栈大小，为4*1024 word，在
+32位系统中，一个word为4字节，即最大的栈大小为16K字节。
+
+注意在程序末尾有一个比较特别的部分，使用了\texttt{extern "C"}关键字。
+\texttt{extern "C"}主要功能是实现C与C++混合编程，其中\texttt{"C"}表示的是
+使用类C语言的编译链接规范而不是C++的编译链接规范。这两种规范有什么区别呢？可以
+举一个简单的例子，在C++中支持函数重载，如果定义了多个同名函数
+\begin{lstlisting}[style=customcpp]
+    void print(int a);
+    void print(double a);
+    void print(char* s);
+\end{lstlisting}
+上面三个函数实际上会被编译成以下三个函数：
+\begin{lstlisting}[style=customcpp]
+    void _print_int(int a);
+    void _print_double(double a);
+    void _print_string(char* s);
+\end{lstlisting}
+在链接的过程中也是按照这样的机制去找变量，因此C++中的重载可以被视为
+是一种静态的（编译期）的多态。
+
+而在C语言中没有C++类和重载的特性，如\texttt{print(int)}会被编译为\texttt{\_print(int)}，
+因此如果直接在C++中调用C的函数会失败，故必须要使用\texttt{extern "C"}来指明使用C语言的编译链接方式。
+
+这里分别定义了\texttt{ThreadRoot}和\texttt{SWITCH}函数。这几个函数采用了外部全局定义，目前在这个文件中无法看到具体实现。
+
+接着阅读了\texttt{thread.cc}文件，该文件是对\texttt{thread.h}文件中声明函数的实现。
+首先是一个宏定义\texttt{STACK\_FENCEPOST}，置于执行栈顶，其作用是检测栈是否溢出。
+\texttt{Thread}构造函数颇为简单，通过参数给线程起一个名字，将栈指针与栈顶设置为空，并且设置
+状态为\texttt{JUST\_CREATED}刚创建。如果定义了用户空间，则初始化\texttt{space}
+这个成员变量。注意到其与\texttt{Fork}函数的区别，进程是在\texttt{Fork}函数中真正开始分配
+空间和资源的，调用了\texttt{StackAllocate}，然后将其放入到\texttt{ReadyToRun}，这个函数
+的含义非常明显，将该线程状态设置为就绪状态，然后放到就绪队列队尾。注意，这里关闭了中断，是有原子性的。
+
+接着是析构函数，这里需要结合一下\texttt{Finish}函数一块分析，
+在\texttt{Finish}函数中，首先关闭中断，然后将\texttt{threadToBeDestroyed}赋值为当前线程，
+之后进入睡眠状态，因此Finish并不是立即将释放资源，而是当释放CPU进行切换的时候，
+\texttt{Scheduler::Run}会调用当前函数的析构函数，因此真正的资源释放是发生在析构函数中的。
+切換到\texttt{scheduler.cc}文件中，可以看到该函数定义在第90行，其作用类似于进程切换，
+将当前进程的状态保存下来，然后装载一个新的进程的状态。在125行中可以看到，当判断存在可以被销毁
+的进程时，就使用\texttt{delete}关键词将其释放，因而会触发析构函数的调用。
+
+需要区分\texttt{Sleep}与\texttt{Yield}方法。\texttt{Yield}方法表示当前线程主动放弃CPU，将线程状态
+又\texttt{RUNNING}转换为\texttt{READY}，并且将当前线程添加到就绪队列队尾。当就绪队列为空时，\texttt{Yield}方法不执行任何操作，当前线程继续运行。
+\texttt{Sleep}方法将线程状态从\texttt{RUNNING}切换到\texttt{BLOCKED}，并从就绪队列选择一个线程运行。当就绪队列空的时候，CPU保持空闲状态，直到有一个线程就绪为止。\texttt{Sleep}方法会在执行IO操作时或者是等待一个事件时经常被调用。在调用\texttt{Sleep}之前，线程经常把它自己放入IO设备等待队列。
+
+\texttt{CheckOverflow}函数将\texttt{stack}指针与\texttt{STACK\_FENCEPOST}比较
+判断是否发生溢出。
+
+\texttt{StackAllocate}函数用于为线程栈分配空间，其调用的是\texttt{AllocBoundedArray}函数，
+在之后通过宏定义，给出当前机器架构相关的一些设定。
+
+\texttt{SaveUserState}和\texttt{RestoreUserState}也颇为直接，分别将
+
+\textbf{Exercise 3  扩展线程的数据结构}
+
+增加“用户ID、线程ID”两个数据成员，并在Nachos现有的线程管理机制中增加对这两个数据成员的维护机制。
+
+\textbf{Exercise 4  增加全局线程管理机制}
+
+在Nachos中增加对线程数量的限制，使得Nachos中最多能够同时存在128个线程；
+仿照Linux中\texttt{PS}命令，增加一个功能\texttt{TS}(Threads Status)，能够显示当前系统中所有线程的信息和状态。
+
+\section{遇到的困难以及解决方法}
+
+\section{收获与感想}
+
+\section{对课程的意见与建议}
+
+\section{参考文献}

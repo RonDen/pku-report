@@ -6,22 +6,50 @@
 \usepackage[zihao=-4,heading=true]{ctex}
 \usepackage{geometry}
 \geometry{left=2.0cm, right=2.0cm, top=2.0cm, bottom=2.0cm}
-\usepackage[colorlinks=true]{hyperref}
+% \usepackage[colorlinks=true]{hyperref}
+\usepackage[colorlinks=true,pdfstartview=FitH,linkcolor=blue,anchorcolor=violet,citecolor=magenta]{
+hyperref}
+% \usepackage[backend=biber,style=gb7714-2015]{biblatex}
+% \bibliography{nas-ref.bib}
 \usepackage{graphicx} % used for add figure to this report
 \graphicspath{{img/}}
-\usepackage{listings}
+% \usepackage{listings}
+% \usepackage{graphics}
 \usepackage[dvipsnames]{xcolor}
-\usepackage{booktabs}
-\usepackage[toc]{multitoc}
-\usepackage{graphics}
-\usepackage{subfig}
+\usepackage{fancyhdr}
+\usepackage{datetime}
+% \usepackage{tcolorbox}
+% \usepackage{natbib}
+% \usepackage{apacite}
+% \usepackage{amssymb}
+% \usepackage{bbding}
+% \usepackage{booktabs}
+% \tcbuselibrary{skins, breakable, theorems}
+
+% % \usepackage{booktabs}
+% \usepackage[toc]{multitoc}
+% \usepackage{subfig}
 \usepackage{enumerate}
 \usepackage{titlesec}
-\usepackage{fancyhdr}
-\usepackage[section]{placeins}
 
-\input{code_format.sty}
+% \usepackage[section]{placeins}
+
+% \input{code_format.sty}
+% \renewcommand{\thesection}{\arabic{section}}
+% \titleformat{\section}{\centering\bfseries\large}{第\thesection 部分}{1em}{}
+% \pagestyle{fancy}
+% \lhead{\includegraphics[scale=0.05]{pkulogo.eps} \includegraphics[scale=0.3]{name_full.eps}}
+% \lhead{\includegraphics[height=8mm]{pkulogo.eps} \includegraphics[height=8mm]{name_full.eps}}
+
+\cfoot{\thepage}
+% \footrule
 
 \begin{document}
-\input{head_page.tex}
+% \input{nas-headpage.tex}
+
+% \newpage
+
+\input{xv6_head_page.tex}
+
+
 \end{document}

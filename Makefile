@@ -27,7 +27,7 @@ doc:
 	$(DODVIPDF)
 
 clean:
-	$(RM) $(JOB).aux $(JOB).bbl $(JOB).bcf $(JOB).blg $(JOB).dvi \
+	$(RM) *.aux *.dvi *.fls *.log *.fdb_latexmk **/*.aux **/*.dvi **/*.fls **/*.log **/*fdb_latexmk $(JOB).aux $(JOB).bbl $(JOB).bcf $(JOB).blg $(JOB).dvi \
 		$(JOB).lof $(JOB).log $(JOB).lot $(JOB).run.xml $(JOB).toc \
 		$(JOB).out $(JOB).out.bak missfont.log texput.log chap/*.aux
 

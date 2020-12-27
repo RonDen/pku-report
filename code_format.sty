@@ -1,3 +1,4 @@
+\renewcommand{\today}{\number\year 年 \number\month 月 \number\day 日}
 
 	\lstdefinestyle{customcpp}{
 		numbers=left,
@@ -79,7 +80,7 @@
 part/pagestyle = empty,
 chapter = {
     format = \raggedright,
-    pagestyle = empty,
+    % pagestyle = empty,
 },
 section = {
     name = {第,部分},
@@ -91,9 +92,12 @@ subsection = {
 }
 }
 \pagestyle{fancy}
+\cfoot{\thepage}
+\rhead{\small\leftmark}
+\renewcommand{\headrulewidth}{1pt}
 
-\titleformat{\section}
-            {\LARGE\bfseries\sffamily\color{RoyalBlue}}
-            {\includegraphics[height=2em]{hadoop/hadoop2.png} \thesection{}.}
-            {1em}
-            {\huge\scshape}
+% \titleformat{\section}
+%             {\LARGE\bfseries\sffamily\color{RoyalBlue}}
+%             {\includegraphics[height=2em]{hadoop/hadoop2.png} \thesection{}.}
+%             {1em}
+%             {\huge\scshape}

@@ -1,0 +1,39 @@
+% !Mode:: "TeX:UTF-8"
+% !TEX TS-program = xelatex
+\documentclass[UTF8]{report}
+% \documentclass[UTF8]{report}
+
+\usepackage[zihao=-4,heading=true]{ctex}
+\usepackage{geometry}
+\geometry{left=2.0cm, right=2.0cm, top=2.0cm, bottom=2.0cm}
+\usepackage[colorlinks=true]{hyperref}
+\usepackage{graphicx} % used for add figure to this report
+\graphicspath{{img/}}
+\usepackage{listings}
+\usepackage{graphics}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{fancyhdr}
+% \usepackage{natbib}
+% \usepackage{apacite}
+\bibliographystyle{acm}
+% % \usepackage{booktabs}
+% \usepackage[toc]{multitoc}
+% \usepackage{subfig}
+% \usepackage{enumerate}
+% \usepackage{titlesec}
+
+% \usepackage[section]{placeins}
+
+\input{code_format.sty}
+
+\begin{document}
+\input{head_page.tex}
+
+\newpage
+
+\tableofcontents
+\newpage
+
+\input{report1.tex.tex}
+
+\end{document}
